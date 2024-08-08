@@ -8,7 +8,13 @@ console.log(
 );
 //console.log("가격은 타입추론에 의해 숫자로 컴파일시 자동인식됨:",price.length);
 
-var user = {
+type UserType = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+var user: UserType = {
   id: 1,
   name: "강창훈",
   email: "test@test.co.kr",
