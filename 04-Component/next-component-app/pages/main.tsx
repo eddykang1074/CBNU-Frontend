@@ -1,3 +1,6 @@
+//리액트 패키지에서 useState 훅을 참조하기
+import { useState } from 'react';
+
 //폰트스타일을 구글 폰트 참조하기
 import { Inter } from 'next/font/google';
 
@@ -26,6 +29,11 @@ import Guide from '@/components/guide';
 // }
 
 function Main() {
+  //제목 상태값 정의하기
+  //useState(초기설정값)은 반환값으로 설정된 변수값과 값을 변경하는 전용 세터(Setter)함수를 반환합니다.
+  //state값은 반드시 지정된 setter함수를 통해 변경해야합니다.
+  const [title, setTitle] = useState('메인페이지');
+
   //next.js 로고 이미지 경로 데이터 정의
   const logoPath = '/next.svg';
 
@@ -54,7 +62,7 @@ function Main() {
   ];
 
   //자식 컴포넌트에서 발생한 이벤트 처리 함수
-  const handleChildClick = (url: string) => {
+  const handleChildClick = (url: string): void => {
     console.log('이동할 URL 데이터:', url);
   };
 
@@ -62,8 +70,12 @@ function Main() {
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
     >
+      <h1>{title}</h1>
+
       {/* 헤더 컴포넌트 영역  */}
-      <Header mainPage="pages/main.tsx" onClick={handleChildClick} />
+      <Header mainPage="pages/main.tsx" onClick={handleChildClick}>
+        헤더컴포넌트의 자식데이터 전달하기
+      </Header>
 
       {/* 로고 컴포넌트 영역  */}
       <LogoContents logoPath={logoPath} />
