@@ -4,64 +4,84 @@ import { Field, Label, Switch } from '@headlessui/react';
 
 //useState 상태관리 훅을 참조하기
 import { useState } from 'react';
+import { errorToJSON } from 'next/dist/server/render';
 
-const Entry = () => {
-  //원시데이터 타입 기반 useState 훅 사용하기
-  //개별 UI요소별로 state생성시 관리요소가 많이 발생함을 인지하세요.
-  const [name, setName] = useState<string>('');
+//멤버 Type Alias 정의
+type MemberType = {
+  name: string;
+  password: string;
+  email: string;
+  telephoneType: number;
+  telephone: string;
+  introduction: string;
+  agree: boolean;
+};
 
-  const [password, setPassword] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [telephoneType, setTelephoneType] = useState<number>(0);
-  const [telephone, setTelephone] = useState<string>('');
-  const [introduction, setIntroduction] = useState<string>('');
-  const [agree, setAgree] = useState<boolean>(false);
+//Member Interface 정의
+interface IMember {
+  name: string;
+  password: string;
+  email: string;
+  telephoneType: number;
+  telephone: string;
+  introduction: string;
+  agree: boolean;
+}
 
-  //이름 텍스트박스 값이 변경될떄마다 name State값을 변경하기
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //이벤트가 발생한 INPUT요소의 현재 입력값을 추출해서 관련 SETTER함수에 값을 전달해 상태값 변경하기
-    setName(e.target.value);
+const EntryPlus = () => {
+  //객체 기반 상태관리하기 예시
+  //상태관리 데이터를 객체를 이용해 일괄 데이터 관리하기
+  const [member, setMember] = useState<MemberType>({
+    name: '',
+    password: '',
+    email: '',
+    telephoneType: 0,
+    telephone: '',
+    introduction: '',
+    agree: false,
+  });
+
+  //Input요소타입 단일 이벤트 핸들러 정의하기
+  //화면내 모든 HTMLInputElement 요소의 OnChange 이벤트 핸들러 단일 처리함수로 처리
+  //참조형 데이터(객체,배열)의 변경은 반드시 참조형 데이터의 복사본을 생성하고 해당 복사본의 속성을 변경해야한다.
+  const handleMemberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //...member는 해당 객체의 복사본을 만든다는 의미이고 복사본의 해당 UI요소의 name값을 이용해 객체속성의 값을 변경한다.
+    //member객체의 실제 복사본 객체를 만들고 복사본 객체의 특정속성["속성명"]을 지정하고 값을 변경한후 복사본을 setMember()함수의 값으로 전달하여
+    //멤버객체값을 변경한다.
+    console.log('onChange이벤트가 발생한 UI요소의 name 특성값:', e.target.name);
+    console.log(
+      'onChange이벤트가 발생한 UI요소의 value 특성값:',
+      e.target.value,
+    );
+    setMember({ ...member, [e.target.name]: e.target.value });
   };
 
-  //암호 텍스트박스 값이 변경될떄마다 password State값을 변경하기
-  //이벤트 처리핸들러 함수를 만드는경우는 주로 핸들러 내에서 특정 로직을 구현해야할떄 사용합니다.
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
+  //Select 요소에 대한 onChange 이벤트 핸들러 정의하기
   const handleTelephoneTypeChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    setTelephoneType(Number(e.target.value));
+    //member복사본 객체의 telephoneType속성값을 변경해서 최종 변경된 복사본 객체를 setMember()함수의 인자값으로 전달함
+    setMember({ ...member, telephoneType: Number(e.target.value) });
+    //setMember({ ...member, [e.target.name]: Number(e.target.value) });
   };
 
   const handleIntroductionChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
-    setIntroduction(e.target.value);
+    setMember({ ...member, introduction: e.target.value });
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     //체크박스 요소의 체크여부(불린형)값을 가져와서 상태값으로 변경하기
-    setAgree(e.target.checked);
+    setMember({ ...member, agree: e.target.checked });
   };
 
-  //폼요소의 Submit 이벤트 핸들러 정의하기
+  //회원가입 버튼 클릭 onSubmit 이벤트 처리기함수 정의
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    //기본동작 차단하기(submit이벤트 실행으로 인한 화면 껌벅거림 방지처리하기)
     e.preventDefault();
 
-    //백엔드로 보낼 json 데이터 객체 생성하기
-    const memberData = {
-      name: name,
-      password: password,
-      email,
-      telephoneType,
-      telephone,
-      introduction,
-      agree,
-    };
-    console.log('백엔드 회원가입 API에 데이터를 전달한다.', memberData);
+    //백엔드 API에 member state 객체를 바로 전달한다.
+    console.log('백엔드로 전달할 회원가입 데이터:', member);
   };
 
   return (
@@ -98,10 +118,10 @@ const Entry = () => {
             <div className="mt-2.5">
               <input
                 id="name"
-                name="name"
                 type="text"
-                value={name}
-                onChange={handleNameChange}
+                value={member.name}
+                name="name"
+                onChange={handleMemberInputChange}
                 autoComplete="given-name"
                 className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
@@ -117,11 +137,11 @@ const Entry = () => {
             <div className="mt-2.5">
               <input
                 id="password"
-                name="password"
                 type="password"
-                value={password}
+                value={member.password}
                 // onChange={(e) => setPassword(e.target.value)}
-                onChange={handlePasswordChange}
+                name="password"
+                onChange={handleMemberInputChange}
                 autoComplete="family-name"
                 className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
@@ -138,10 +158,10 @@ const Entry = () => {
             <div className="mt-2.5">
               <input
                 id="email"
-                name="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={member.email}
+                name="email"
+                onChange={handleMemberInputChange}
                 autoComplete="email"
                 className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
@@ -161,8 +181,8 @@ const Entry = () => {
                 </label>
                 <select
                   id="telephonetype"
-                  name="telephonetype"
-                  value={telephoneType}
+                  name="telephoneType"
+                  value={member.telephoneType}
                   onChange={handleTelephoneTypeChange}
                   className="h-full rounded-md border-0 bg-transparent bg-none py-0 pl-4 pr-9 text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
                 >
@@ -177,10 +197,10 @@ const Entry = () => {
               </div>
               <input
                 id="telephone"
-                name="telephone"
                 type="tel"
-                value={telephone}
-                onChange={(e) => setTelephone(e.target.value)}
+                value={member.telephone}
+                name="telephone"
+                onChange={handleMemberInputChange}
                 autoComplete="tel"
                 className="block w-full rounded-md border-0 px-3.5 py-2 pl-32 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
@@ -197,7 +217,7 @@ const Entry = () => {
               <textarea
                 id="introduction"
                 name="introduction"
-                value={introduction}
+                value={member.introduction}
                 onChange={handleIntroductionChange}
                 rows={4}
                 className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -207,17 +227,17 @@ const Entry = () => {
           <Field className="flex gap-x-4 sm:col-span-2">
             <div className="flex h-6 items-center">
               {/* <Switch className="group flex w-8 flex-none cursor-pointer rounded-full bg-gray-200 p-px ring-1 ring-inset ring-gray-900/5 transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 data-[checked]:bg-indigo-600">
-                <span className="sr-only">Agree to policies</span>
-                <span
-                  aria-hidden="true"
-                  className="h-4 w-4 transform rounded-full bg-white shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out group-data-[checked]:translate-x-3.5"
-                />
-              </Switch> */}
+                    <span className="sr-only">Agree to policies</span>
+                    <span
+                      aria-hidden="true"
+                      className="h-4 w-4 transform rounded-full bg-white shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out group-data-[checked]:translate-x-3.5"
+                    />
+                  </Switch> */}
               <input
                 type="checkbox"
                 id="agreed"
                 name="agreed"
-                checked={agree}
+                checked={member.agree}
                 onChange={handleCheckboxChange}
               />
             </div>
@@ -242,4 +262,4 @@ const Entry = () => {
   );
 };
 
-export default Entry;
+export default EntryPlus;
