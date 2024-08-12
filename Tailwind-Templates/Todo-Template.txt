@@ -1,0 +1,32 @@
+    // 할일 컨테이너 영역
+    <div className="container mx-auto max-w-md p-4">
+      <h1 className="text-2xl font-bold mb-4">Todo List</h1>
+
+      {/* 할일 등록 영역  */}
+      <form className="flex mb-4">
+        <input
+          type="text"
+          className="flex-grow border border-gray-300 rounded px-4 py-2 mr-2"
+          placeholder="Enter a todo"
+        />
+        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+          Add
+        </button>
+      </form>
+
+      {/* 할일목록영역 */}
+      <ul>
+        <li className="flex items-center justify-between border-b border-gray-300 py-2">
+          <span>할일1입니다.</span>
+          <button className="text-red-500 hover:text-red-600">Delete</button>
+        </li>
+        <li className="flex items-center justify-between border-b border-gray-300 py-2">
+          <span>할일2입니다.</span>
+          <button className="text-red-500 hover:text-red-600">Delete</button>
+        </li>
+        <li className="flex items-center justify-between border-b border-gray-300 py-2">
+          <span>할일3입니다.</span>
+          <button className="text-red-500 hover:text-red-600">Delete</button>
+        </li>
+      </ul>
+    </div>
