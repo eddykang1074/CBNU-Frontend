@@ -12,7 +12,7 @@ const Blog = () => {
   //모두 router.query.키명으로 추출가능합니다.
   console.log("URL주소에서 추출한 게시글 고유번호:", router.query.id);
 
-  return <div>단일 Blog 페이지-게시글번호:{router.query.id}</div>;
+  return <div className="h-[700px]">단일 Blog 페이지-게시글번호:{router.query.id}</div>;
 };
 
 export default Blog;

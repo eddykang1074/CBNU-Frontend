@@ -1,5 +1,5 @@
 const BlogList = () => {
-  return <div >Blog List Page</div>;
+  return <div className="h-[700px]">Blog List Page</div>;
 };
 
 export default BlogList;

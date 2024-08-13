@@ -1,5 +1,5 @@
 const Entry = () => {
-  return <div>Entry Page</div>;
+  return <div className="h-[700px]">Entry Page</div>;
 };
 
 export default Entry;
