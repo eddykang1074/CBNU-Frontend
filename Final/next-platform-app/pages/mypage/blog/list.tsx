@@ -1,13 +1,35 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { IBlog } from '@/interfaces/blog';
+import axios from 'axios';
 
-const BlogList = ({ blogs }: { blogs: IBlog[] }) => {
+const BlogList = () => {
+  // 아래 컴포넌트는 SSR방식으로 최초 화면 렌더링 처리시 사용
+  // const BlogList = ({ blogs }: { blogs: IBlog[] }) => {
   const router = useRouter();
 
   //CSR-Cient Side Rendering시에만 사용 : 게시글 목록 데이터 상태 정의
-  //const [blogs, setBlogs] = useState<IBlog[]>([]);
+  const [blogs, setBlogs] = useState<IBlog[]>([]);
+
+  //CSR방식으로 최초 화면 렌더링(마운트)시 웹브라우저 서버 RESTFUL API 호출 게시글 목록 조회 바인딩처리하기
+  useEffect(() => {
+    getBlogList();
+  }, []);
+
+  //비동기 방식으로 백엔드 게시글 목록 데이터 호출함수
+  async function getBlogList() {
+    try {
+      const res = await axios.get('http://localhost:5000/api/article/list');
+      if (res.data.code == 200) {
+        setBlogs(res.data.data);
+      } else {
+        console.error('서버 에러발생...', res.data.msg);
+      }
+    } catch (err) {
+      console.error('백엔드 API 호출에러발생...');
+    }
+  }
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
@@ -97,10 +119,10 @@ const BlogList = ({ blogs }: { blogs: IBlog[] }) => {
 };
 
 //SSR방식으로 최초 화면 렌더링시 서버에서 데이터를 조회하고 서버에서 HTML소스를 생성해서 가져온다.
-export const getServerSideProps = async () => {
-  const res = await fetch('http://localhost:5000/api/article/list');
-  const result = await res.json();
-  return { props: { blogs: result.data } };
-};
+// export const getServerSideProps = async () => {
+//   const res = await fetch('http://localhost:5000/api/article/list');
+//   const result = await res.json();
+//   return { props: { blogs: result.data } };
+// };
 
 export default BlogList;

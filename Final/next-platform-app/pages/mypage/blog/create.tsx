@@ -1,12 +1,21 @@
 //백엔드 RESTful API통신을 위한 axios 패키지 참조하기
 import axios from 'axios';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { ICreateBlog } from '@/interfaces/blog';
 
 const BlogCreate = () => {
   const router = useRouter();
+
+  //최초 화면 컴포넌트 렌더링(마운팅)시점에 로컬스토리지내 토큰값 존재여부 체크후
+  //토큰이 없으면 로그인 하고 오시라고 페이지 리디렉션처리하기
+  useEffect(() => {
+    //서버 인증 JWT 사용자 인증토큰이 스토리지에 없으면 로그인하고 오시라고 처리
+    if (localStorage.getItem('token') == undefined) {
+      router.push('/login');
+    }
+  }, []);
 
   const [blog, setBlog] = useState<ICreateBlog>({
     title: '',
@@ -18,37 +27,44 @@ const BlogCreate = () => {
   const blogSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     //axios나 fetch()를 통해 백엔드 RESTFul API를 호출합니다.
+
+    //웹브라우저 로컬스토리지 저장소에서 로그인 사용자 JWT인증토큰문자열을 조회해온다.
+    const token = localStorage.getItem('token');
+
     try {
       //Case1)axios를 이용한 데이터 처리
-      //axios.post('API주소',전달데이터)
-      // const response = await axios.post(
-      //   'http://localhost:5000/api/article/create',
-      //   blog,
-      // );
+      //axios.post('API주소',전달데이터,옵션)
+      const response = await axios.post(
+        'http://localhost:5000/api/article/create',
+        blog,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
-      // console.log('axios릍 통해 호출한 게시글 등록 결과:', response);
+      console.log('axios릍 통해 호출한 게시글 등록 결과:', response);
 
-      // if (response.data.code == 200) {
-      //   alert('등록완료!!');
-      //   router.push('/mypage/blog/list');
-      // } else {
-      //   console.error('백엔드 에러발생...', response.data.msg);
-      // }
-
-      //Case2:fetch()를 이용한 데이터처리
-      const response = await fetch('http://localhost:5000/api/article/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(blog),
-      });
-
-      const result = await response.json();
-      if (result.code == 200) {
+      if (response.data.code == 200) {
         alert('등록완료!!');
         router.push('/mypage/blog/list');
       } else {
-        console.error('백엔드 에러발생...', result.msg);
+        console.error('백엔드 에러발생...', response.data.msg);
       }
+
+      //Case2:fetch()를 이용한 데이터처리
+      // const response = await fetch('http://localhost:5000/api/article/create', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(blog),
+      // });
+
+      // const result = await response.json();
+      // if (result.code == 200) {
+      //   alert('등록완료!!');
+      //   router.push('/mypage/blog/list');
+      // } else {
+      //   console.error('백엔드 에러발생...', result.msg);
+      // }
     } catch (err) {
       console.error('백엔드 API호출에러발생...');
     }
