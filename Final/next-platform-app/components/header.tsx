@@ -9,8 +9,8 @@ import Image from 'next/image';
 const navigation = [
   { name: 'Blog', href: '/blogs' },
   { name: 'Gallary', href: '/gallary' },
-  { name: 'Chat', href: '#' },
-  { name: 'Company', href: '#' },
+  { name: 'Chat', href: '/chat' },
+  { name: 'Bot', href: '/bot' },
 ];
 
 const Header = () => {

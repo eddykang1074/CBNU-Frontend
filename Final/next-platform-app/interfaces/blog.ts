@@ -18,3 +18,14 @@ export interface IBlog {
   edit_date: string;
   edit_member_id: number;
 }
+
+export interface IBlogFile {
+  article_id: number;
+  file_id: number;
+  title: string;
+  contents: string;
+  file_path: string;
+  file_name: string;
+  reg_member_id: number;
+  reg_member_name: string;
+}
