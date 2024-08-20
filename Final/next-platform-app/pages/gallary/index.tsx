@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import { IBlogFile } from '@/interfaces/blog';
+
 const Gallary = () => {
   //모델타입 과 프롬프트 상태값 정의하기
   const [model, setModel] = useState<string>('dall-e-3');
@@ -8,7 +10,38 @@ const Gallary = () => {
   const [prompt, setPrompt] = useState<string>('');
 
   //이미지정보 목록 상태값 정의
-  const [imageList, setImageList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<IBlogFile[]>([
+    {
+      article_id: 1,
+      file_id: 1,
+      title: 'dall-e-3',
+      contents: '사용자 프롬프트1',
+      file_path: 'http://localhost:5000/ai/sample-1724136328648.png',
+      file_name: 'sample-1724136328648.png',
+      reg_member_id: 1,
+      reg_member_name: 'Eddy',
+    },
+    {
+      article_id: 2,
+      file_id: 2,
+      title: 'dall-e-3',
+      contents: '사용자 프롬프트2',
+      file_path: 'http://localhost:5000/ai/sample-1724136328648.png',
+      file_name: 'sample-1724136328648.png',
+      reg_member_id: 1,
+      reg_member_name: 'Eddy',
+    },
+    {
+      article_id: 3,
+      file_id: 3,
+      title: 'dall-e-3',
+      contents: '사용자 프롬프트3',
+      file_path: 'http://localhost:5000/ai/sample-1724136328648.png',
+      file_name: 'sample-1724136328648.png',
+      reg_member_id: 1,
+      reg_member_name: 'Eddy',
+    },
+  ]);
 
   //이미지 생성요청 함수
   const generateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -64,48 +97,25 @@ const Gallary = () => {
           </button>
         </form>
 
+        {/* 이미지 파일 목록 영역 */}
         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-8">
-          <a href="#" className="group text-sm">
-            <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-100 group-hover:opacity-75">
-              <img
-                src="https://image.dongascience.com/Photo/2023/03/a5f212448bf805ac355e3ac2b1817c22.jpg"
-                className="h-full w-full object-cover object-center"
-              />
-            </div>
-            <h3 className="mt-4 font-medium text-gray-900">
-              이미지를 만들어줘
-            </h3>
-            <p className="italic text-gray-500">Dalle.3</p>
-            <p className="mt-2 font-medium text-gray-900">Eddy</p>
-          </a>
-
-          <a href="#" className="group text-sm">
-            <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-100 group-hover:opacity-75">
-              <img
-                src="https://image.dongascience.com/Photo/2023/03/a5f212448bf805ac355e3ac2b1817c22.jpg"
-                className="h-full w-full object-cover object-center"
-              />
-            </div>
-            <h3 className="mt-4 font-medium text-gray-900">
-              이미지를 만들어줘
-            </h3>
-            <p className="italic text-gray-500">Dalle.3</p>
-            <p className="mt-2 font-medium text-gray-900">Eddy</p>
-          </a>
-
-          <a href="#" className="group text-sm">
-            <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-100 group-hover:opacity-75">
-              <img
-                src="https://image.dongascience.com/Photo/2023/03/a5f212448bf805ac355e3ac2b1817c22.jpg"
-                className="h-full w-full object-cover object-center"
-              />
-            </div>
-            <h3 className="mt-4 font-medium text-gray-900">
-              이미지를 만들어줘
-            </h3>
-            <p className="italic text-gray-500">Dalle.3</p>
-            <p className="mt-2 font-medium text-gray-900">Eddy</p>
-          </a>
+          {fileList.map((file, index) => (
+            <a href="#" key={index} className="group text-sm">
+              <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-100 group-hover:opacity-75">
+                <img
+                  src={file.file_path}
+                  className="h-full w-full object-cover object-center"
+                />
+              </div>
+              <h3 className="mt-4 font-medium text-gray-900">
+                {file.contents}
+              </h3>
+              <p className="italic text-gray-500">{file.title}</p>
+              <p className="mt-2 font-medium text-gray-900">
+                {file.reg_member_name}
+              </p>
+            </a>
+          ))}
         </div>
       </div>
     </div>
