@@ -10,38 +10,28 @@ const Gallary = () => {
   const [prompt, setPrompt] = useState<string>('');
 
   //이미지정보 목록 상태값 정의
-  const [fileList, setFileList] = useState<IBlogFile[]>([
-    {
-      article_id: 1,
-      file_id: 1,
-      title: 'dall-e-3',
-      contents: '사용자 프롬프트1',
-      file_path: 'http://localhost:5000/ai/sample-1724136328648.png',
-      file_name: 'sample-1724136328648.png',
-      reg_member_id: 1,
-      reg_member_name: 'Eddy',
-    },
-    {
-      article_id: 2,
-      file_id: 2,
-      title: 'dall-e-3',
-      contents: '사용자 프롬프트2',
-      file_path: 'http://localhost:5000/ai/sample-1724136328648.png',
-      file_name: 'sample-1724136328648.png',
-      reg_member_id: 1,
-      reg_member_name: 'Eddy',
-    },
-    {
-      article_id: 3,
-      file_id: 3,
-      title: 'dall-e-3',
-      contents: '사용자 프롬프트3',
-      file_path: 'http://localhost:5000/ai/sample-1724136328648.png',
-      file_name: 'sample-1724136328648.png',
-      reg_member_id: 1,
-      reg_member_name: 'Eddy',
-    },
-  ]);
+  const [fileList, setFileList] = useState<IBlogFile[]>([]);
+
+  //최초로 화면이 렌더링되는 마운팅 시점(최초1회)에서 백엔드 API 호출하기
+  useEffect(() => {
+    //최초 화면이 표시되는 시점에 백엔드 API에서 이미지 목록을 가져오기
+    getBlogFiles();
+  }, []);
+
+  //백엔드에서 이미지 목록 데이터를 가져오는 비동기 함수기능정의
+  async function getBlogFiles() {
+    //fetch함수를 통해 백엔드 이미지 목록 API  호출하기
+    const response = await fetch('http://localhost:5000/api/openai/all', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const resultData = await response.json();
+    console.log('백엔드에서 전달해준 결과값 확인:', resultData);
+    setFileList(resultData.data as IBlogFile[]);
+  }
 
   //이미지 생성요청 함수
   const generateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -58,6 +48,8 @@ const Gallary = () => {
 
     const resultData = await response.json();
     console.log('백엔드에서 전달해준 결과값 확인:', resultData);
+
+    await getBlogFiles();
   };
 
   return (
