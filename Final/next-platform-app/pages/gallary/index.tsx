@@ -1,22 +1,58 @@
+import { useState, useEffect } from 'react';
+
 const Gallary = () => {
+  //모델타입 과 프롬프트 상태값 정의하기
+  const [model, setModel] = useState<string>('dall-e-3');
+
+  //사용자 프롬프트 텍스트 상태값 정의하기
+  const [prompt, setPrompt] = useState<string>('');
+
+  //이미지정보 목록 상태값 정의
+  const [imageList, setImageList] = useState<any[]>([]);
+
+  //이미지 생성요청 함수
+  const generateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    //fetch함수를 통해 백엔드 DALLE API 호출하기
+    const response = await fetch('http://localhost:5000/api/openai/dalle', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ model, prompt }),
+    });
+
+    const resultData = await response.json();
+    console.log('백엔드에서 전달해준 결과값 확인:', resultData);
+  };
+
   return (
     <div className="bg-white">
       <div className="mx-auto mt-8 max-w-7xl overflow-hidden px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="m-5 text-center">
           <h1 className="text-2xl font-bold">생성형 이미지 활용하기</h1>
         </div>
-        <form className="flex">
+        <form className="flex" onSubmit={generateSubmit}>
           <select
             id="model"
             name="model"
+            value={model}
+            onChange={e => {
+              setModel(e.target.value);
+            }}
             className="block w-[250px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
           >
-            <option>Dalle.2</option>
-            <option>Dalle.3</option>
+            <option value="dall-e-2">Dalle.2</option>
+            <option value="dall-e-3">Dalle.3</option>
           </select>
           <input
             id="prompt"
             name="prompt"
+            value={prompt}
+            onChange={e => {
+              setPrompt(e.target.value);
+            }}
             type="text"
             className="block ml-4 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           />
@@ -24,7 +60,7 @@ const Gallary = () => {
             type="submit"
             className="rounded-md ml-4 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            Create
+            Generate
           </button>
         </form>
 
