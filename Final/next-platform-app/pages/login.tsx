@@ -1,13 +1,20 @@
 //로그인 화면 컴포넌트
 
-import { useState } from 'react';
-
+import { useState, useContext } from 'react';
 import { useRouter } from 'next/router';
+
+//전역컨텍스트 참조하기
+import { GlobalContext } from '@/library/globalContext';
+import { IGlobalData, ILoginMember } from '@/interfaces/global';
 
 //로그인 페이지 컴포넌트
 const Login = () => {
   //라우팅 객체 생성하기
   const router = useRouter();
+
+  //전역 상태값 변경을 위한 컨텍스트 객체 생성
+  //전역 상태값을 불러오거나 값을 변경할수 있게 변수와 세터함수 참조하기
+  const { globalData, setGlobalData } = useContext(GlobalContext);
 
   //로그인 사용자 정보 상태관리 데이터 초기화
   const [member, setMember] = useState({
@@ -40,7 +47,10 @@ const Login = () => {
       if (result.code == 200) {
         console.log('정상적으로 로그인 완료!!!!!');
         //Step1:백엔드에서 제공한 JWT토큰값 웹브라우저의 localStorage 저장소에 저장
-        localStorage.setItem('token', result.data);
+        localStorage.setItem('token', result.data.token);
+
+        //로그인한 사용자 정보를 전역상태의 member속성값으로 저장하기
+        setGlobalData({ ...globalData, member: result.data.member });
 
         //Step2:추후 Context API의 전역데이터로 사용자 정보 저장
 

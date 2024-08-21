@@ -1,17 +1,35 @@
-const people = [
-  {
-    name: 'Lindsay Walton',
-    title: 'Front-end Developer',
-    email: 'lindsay.walton@example.com',
-    role: 'Member',
-  },
-  // More people...
-];
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
+
+import { IChannel, ChannelState } from '@/interfaces/message';
+
+import axios from 'axios';
 
 const ChatList = () => {
+  const router = useRouter();
+
+  //채널목록 데이터 상태 정의 및 초기화
+  const [channels, setChannels] = useState<IChannel[]>([]);
+
+  useEffect(() => {
+    getChannelList();
+  }, []);
+
+  async function getChannelList() {
+    const response = await axios.get('http://localhost:5000/api/channel/list');
+    console.log('백엔드에서 제공해준 채널목록:', response.data);
+    setChannels(response.data.data);
+  }
+
+  //채널목록에서 참여하기 버튼클릭시 선택 채널번호를 이용해 채팅방 컴포넌트로 이동하기
+  const entryChannel = async (cid: number) => {
+    router.push(`/chat?cid=${cid.toString()}`);
+  };
+
   return (
     <div className="ml-32 mr-32 px-4 sm:px-6 lg:px-8">
       <div className="mt-32 sm:flex sm:items-center">
+        {/* 제목 및 설명영역 */}
         <div className="sm:flex-auto">
           <h1 className="text-base font-semibold leading-6 text-gray-900">
             채팅방 목록
@@ -20,7 +38,21 @@ const ChatList = () => {
             일대일 사용자 채팅방 목록
           </p>
         </div>
+
+        {/* 신규 채널개설 버튼영역 */}
+        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          <button
+            type="button"
+            onClick={() => {
+              router.push('/chat/create');
+            }}
+            className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            신규채널개설
+          </button>
+        </div>
       </div>
+
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -32,43 +64,39 @@ const ChatList = () => {
                       scope="col"
                       className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
                     >
-                      Name
+                      채널명
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      Title
+                      접속자 제한수
                     </th>
 
                     <th
                       scope="col"
                       className="relative py-3.5 pl-3 pr-4 sm:pr-6"
                     >
-                      참여
+                      참여하기
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {people.map(person => (
-                    <tr key={person.email}>
+                  {channels.map((channel, index) => (
+                    <tr key={channel.channel_id}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {person.name}
+                        {channel.channel_name}
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {person.title}
+                        {channel.user_limit}
                       </td>
 
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-6">
-                        {/* <a
-                            href="#"
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            참여하기
-                            <span className="sr-only">, {person.name}</span>
-                          </a> */}
                         <button
                           type="button"
+                          onClick={() => {
+                            entryChannel(channel.channel_id);
+                          }}
                           className="rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
                           참여하기
