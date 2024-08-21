@@ -50,7 +50,7 @@ const Login = () => {
         localStorage.setItem('token', result.data.token);
 
         //로그인한 사용자 정보를 전역상태의 member속성값으로 저장하기
-        setGlobalData({ ...globalData, member: result.data.member });
+        setGlobalData(result.data);
 
         //Step2:추후 Context API의 전역데이터로 사용자 정보 저장
 
@@ -127,7 +127,7 @@ const Login = () => {
                 </label>
                 <div className="text-sm">
                   <a
-                    href="#"
+                    href="/"
                     className="font-semibold text-indigo-600 hover:text-indigo-500"
                   >
                     Forgot password?

@@ -1,12 +1,19 @@
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 
 import { IChannel, ChannelState } from '@/interfaces/message';
+
+//전역컨텍스트 참조하기
+import { GlobalContext } from '@/library/globalContext';
+import { IGlobalData, ILoginMember } from '@/interfaces/global';
 
 import axios from 'axios';
 
 const ChatList = () => {
   const router = useRouter();
+
+  //전역 상태값에서 로그인한 사용자의 정보 조회하기 위해 컨텍스트 객체 생성
+  const { globalData, setGlobalData } = useContext(GlobalContext);
 
   //채널목록 데이터 상태 정의 및 초기화
   const [channels, setChannels] = useState<IChannel[]>([]);
