@@ -1,9 +1,18 @@
 //사용자간 기초 채팅기능구현 컴포넌트
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+import { useRouter } from 'next/router';
 
 import { IMessage } from '@/interfaces/message';
 
+//채팅 클라이언트 socket객체 참조하기
+import { socket } from '@/library/socket';
+
+//채팅 컴포넌트 정의
 const Chat = () => {
+  //라우터 객체 생성
+  const router = useRouter();
+
   //현재 사용자 고유번호 상태값 정의
   const [memberId, setMemberId] = useState<number>(1);
 
@@ -23,7 +32,7 @@ const Chat = () => {
       member_id: 2,
       name: '강재명',
       profile: 'http://localhost:5000/img/user2.png',
-      message: '비가오네요',
+      message: '비가오네요.',
       send_date: '2021-09-01 11:00:00',
     },
     {
@@ -34,6 +43,33 @@ const Chat = () => {
       send_date: '2021-09-01 12:00:00',
     },
   ]);
+
+  //useEffect훅은 CSR환경에서 작동되고 userRouter훅은 SSR/CSR순서로 2번작동됨.
+  //useEffect훅에서 userRouter훅이용해 URL키값이 추출안되는 문제는  useRouter.isReady값을 이용해 해결가능
+  //useRouter.isReady 값이 기본은 false->true로 변경되는 시점에 관련 기능 구현하면됨..
+  useEffect(() => {
+    console.log('현재 URL주소에서 사용자 고유번호 추출하기:', router.query.id);
+    //URL주소를통해 사용자 고유번호가 전달된 경우에만 실행
+    if (router.query.id != undefined) {
+      //현재 사용자 고유번호 상태값 설정해주기
+      setMemberId(Number(router.query.id));
+    }
+  }, [router.isReady]);
+
+  //최초 1회 화면이 렌더링되는 시점(마운팅되는시점)에 실행되는 useEffect함수
+  //프로젝트 루트에 next.config.mjs파일내 reactStrictMode(엄격모드)값을 false로 변경해야 정확히 1회만 실행됨
+  //채팅서버와 연결되는 클라이언트 채팅 소켓 객체 생성 및 각종 채팅 이벤트 기능 구현영역
+  useEffect(() => {
+    //최초 화면이 렌더링되는 시점(최초1회)에 서버소켓 연결하기
+    socket.connect();
+
+    //서버소켓과 연결이 완료되면 실행되는 이벤트처리함수
+    //서버 소켓과 연결이 완료되면 자동으로 client 소켓에서connect이벤트가 실행되고
+    //connect이벤트가 실행되면 처리할 이벤트 처리할 기능 구현
+    socket.on('connect', () => {
+      console.log('정상적으로 서버소켓과 연결이 완료되었습니다.');
+    });
+  }, []);
 
   //채팅 메시지 전송 이벤트 처리함수
   const sendMessage = () => {};
@@ -59,6 +95,9 @@ const Chat = () => {
                           </div>
                           <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
                             <div>{msg.message}</div>
+                            <div className="absolute w-[200px] text-right text-xs bottom-0 right-0 -mb-5 text-gray-500">
+                              {msg.name} {msg.send_date}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -73,6 +112,9 @@ const Chat = () => {
                           </div>
                           <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
                             <div>{msg.message}</div>
+                            <div className="absolute w-[200px] text-xs bottom-0 left-0 -mb-5 text-gray-500">
+                              {msg.name} {msg.send_date}
+                            </div>
                           </div>
                         </div>
                       </div>
