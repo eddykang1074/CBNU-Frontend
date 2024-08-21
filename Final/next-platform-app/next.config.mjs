@@ -3,6 +3,9 @@
 const nextConfig = {
   images: {
     domains: ['tailwindui.com'],
+    // images: {
+    //   domains: ['localhost:5000'],
+    // },
     remotePatterns: [
       {
         protocol: 'https',
@@ -11,7 +14,7 @@ const nextConfig = {
       },
     ],
   },
-  reactStrictMode: true,
+  reactStrictMode: false,
 };
 
 export default nextConfig;
