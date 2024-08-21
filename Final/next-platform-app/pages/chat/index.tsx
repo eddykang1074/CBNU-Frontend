@@ -66,13 +66,53 @@ const Chat = () => {
     //서버소켓과 연결이 완료되면 실행되는 이벤트처리함수
     //서버 소켓과 연결이 완료되면 자동으로 client 소켓에서connect이벤트가 실행되고
     //connect이벤트가 실행되면 처리할 이벤트 처리할 기능 구현
+    //소켓 시스템 이벤트
     socket.on('connect', () => {
       console.log('정상적으로 서버소켓과 연결이 완료되었습니다.');
     });
+
+    //disconnect 이벤트는 서버소켓이 끊어진경우 발생하는 이벤트
+    //서버와의 연결소켓이 끊어진경우 처리할 기능을 핸들러함수에서처리합니다.
+    //소켓 시스템 이벤트
+    socket.on('disconnect', () => {
+      console.log('서버소켓 연결이 종료되었습니다.');
+    });
+
+    //개발자 정의 클라이언트 소켓 이벤트 수신기 정의하기
+    //socket.on('클라이언트 이벤트 수신기명',서버에서 전달해준 데이터를 받는함수정의);
+    socket.on('receiveAll', function (msg: IMessage) {
+      console.log('서버소켓에서 전달된 데이터 확인-receiveAll:', msg);
+      setMessageList(prev => [...prev, msg]);
+    });
+
+    //해당 채팅 컴포넌트가 화면에서 사라질때(언마운팅시점)
+    //소켓관련 이벤트를 모두 제거해워야합니다. 그렇지 않으면 메시지를 여러번 수신할수 있음
+    return () => {
+      //socket.off(클라이언트 이벤트 수신기명); //이벤트 제거
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('receiveAll');
+    };
   }, []);
 
   //채팅 메시지 전송 이벤트 처리함수
-  const sendMessage = () => {};
+  const sendMessage = () => {
+    //채팅서버소켓으로 메시지를 전송합니다.
+    const msgData = {
+      member_id: memberId,
+      name: `사용자-${memberId.toString()}`,
+      profile: `http://localhost:5000/img/user${memberId.toString()}.png`,
+      message: message,
+      send_date: Date.now().toString(),
+    };
+
+    //socket.emit('서버 이벤트 수신기명',전달할 데이터);
+    //채팅서버소켓으로 메시지 전송하기
+    socket.emit('broadcast', msgData);
+
+    //메시지 입력박스 초기화
+    setMessage('');
+  };
 
   return (
     <div className="flex h-screen antialiased text-gray-800 mt-14 pb-10">
