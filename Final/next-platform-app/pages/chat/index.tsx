@@ -29,29 +29,7 @@ const Chat = () => {
   const [message, setMessage] = useState<string>('');
 
   //채팅 메시지 목록(채팅이력정보) 상태값 정의하기
-  const [messageList, setMessageList] = useState<IMessage[]>([
-    {
-      member_id: 1,
-      name: '김철수',
-      profile: 'http://localhost:5000/img/user1.png',
-      message: '안녕하세요',
-      send_date: '2021-09-01 10:00:00',
-    },
-    {
-      member_id: 2,
-      name: '강재명',
-      profile: 'http://localhost:5000/img/user2.png',
-      message: '비가오네요.',
-      send_date: '2021-09-01 11:00:00',
-    },
-    {
-      member_id: 3,
-      name: '이영희',
-      profile: 'http://localhost:5000/img/user3.png',
-      message: '철수야 놀자!!!!',
-      send_date: '2021-09-01 12:00:00',
-    },
-  ]);
+  const [messageList, setMessageList] = useState<IMessage[]>([]);
 
   //useEffect훅은 CSR환경에서 작동되고 userRouter훅은 SSR/CSR순서로 2번작동됨.
   //useEffect훅에서 userRouter훅이용해 URL키값이 추출안되는 문제는  useRouter.isReady값을 이용해 해결가능
@@ -71,7 +49,9 @@ const Chat = () => {
     //채팅방 입장처리하기
     console.log('채팅방 채널이 변경되었습니다.', channel);
     if (channel > 0) {
-      console.log('전역 데이터 정보 확인하기:', globalData);
+      console.log('채팅방에 입장합니다.', channel);
+      //해당 변경된 채팅방에 입장처리하기
+      socket.emit('entry', channel.toString(), globalData.member);
     }
   }, [channel]);
 
@@ -114,6 +94,18 @@ const Chat = () => {
       setMessageList(prev => [...prev, msg]);
     });
 
+    //사용자 지정 채널 입장완료 이벤트 수신기
+    socket.on('entryOk', function (msg: IMessage) {
+      console.log('서버소켓에서 전달된 데이터 확인-receiveAll:', msg);
+      setMessageList(prev => [...prev, msg]);
+    });
+
+    //채팅채널별 메시지 수신기 정의 하기
+    socket.on('receiveChannel', function (msg: IMessage) {
+      console.log('서버소켓에서 전달된 데이터 확인-receiveChannel:', msg);
+      setMessageList(prev => [...prev, msg]);
+    });
+
     //해당 채팅 컴포넌트가 화면에서 사라질때(언마운팅시점)
     //소켓관련 이벤트를 모두 제거해워야합니다. 그렇지 않으면 메시지를 여러번 수신할수 있음
     return () => {
@@ -121,6 +113,8 @@ const Chat = () => {
       socket.off('connect');
       socket.off('disconnect');
       socket.off('receiveAll');
+      socket.off('entryOk');
+      socket.off('receiveChannel');
     };
   }, []);
 
@@ -137,7 +131,7 @@ const Chat = () => {
 
     //socket.emit('서버 이벤트 수신기명',전달할 데이터);
     //채팅서버소켓으로 메시지 전송하기
-    socket.emit('broadcast', msgData);
+    socket.emit('channelMsg', channel.toString(), msgData);
 
     //메시지 입력박스 초기화
     setMessage('');
